@@ -147,9 +147,9 @@ public class DungeonGenerator : MonoBehaviour
 
     public void RandomRooms()
     {
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 15; i++)
         {
-            Vector2Int randomPos = new Vector2Int(Random.Range(-300, 300), Random.Range(-300, 300));
+            Vector2Int randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
             int size = Random.Range(8, 15);
             
             rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
@@ -254,7 +254,7 @@ public class DungeonGenerator : MonoBehaviour
                 break;
             }
 
-            deletedRooms.Add(new Connection(_room1:rooms[(int) maxRoomIndex], _room2:rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomsIndex]));
+            //deletedRooms.Add(new Connection(_room1:rooms[(int) maxRoomIndex], _room2:rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomsIndex]));
             rooms[(int) maxRoomIndex].removeConnection(rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomsIndex]);
 
 
