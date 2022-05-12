@@ -103,7 +103,7 @@ public class DungeonGenerator : MonoBehaviour
             for (int j = 0; j < listRoom[i].connectedRooms.Count; j++)
             {
                 Vector2Int posR1 = listRoom[i].position;
-                Vector2Int posR2 = ListRoom[i].connectedRooms[j].position;
+                Vector2Int posR2 = listRoom[i].connectedRooms[j].position;
             }
         }
     }
