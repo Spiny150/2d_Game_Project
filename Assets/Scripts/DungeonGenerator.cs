@@ -55,65 +55,101 @@ public class DungeonGenerator : MonoBehaviour
     //     FillWalls();
     // }
 
-    // private void FillWalls()
-    // {
-    //     BoundsInt bounds = groundMap.cellBounds;
+    private void FillWalls()
+    {
+        BoundsInt bounds = groundMap.cellBounds;
         
-    //     for (int xMap = bounds.xMin - 10; xMap <= bounds.xMax + 10; xMap++)
-    //     {
-    //         for (int yMap = bounds.yMin - 10; yMap <= bounds.yMax + 10; yMap++)
-    //         {
-    //             Vector3Int pos = new Vector3Int(xMap, yMap, 0);
-    //             TileBase tile = groundMap.GetTile(pos);
+        for (int xMap = bounds.xMin - 10; xMap <= bounds.xMax + 10; xMap++)
+        {
+            for (int yMap = bounds.yMin - 10; yMap <= bounds.yMax + 10; yMap++)
+            {
+                Vector3Int pos = new Vector3Int(xMap, yMap, 0);
+                TileBase tile = groundMap.GetTile(pos);
 
-    //             TileBase tileUp = groundMap.GetTile(pos + Vector3Int.up);
-    //             TileBase tileDown = groundMap.GetTile(pos + Vector3Int.down);
-    //             TileBase tileRight = groundMap.GetTile(pos + Vector3Int.right);
-    //             TileBase tileLeft = groundMap.GetTile(pos + Vector3Int.left);
+                TileBase tileUp = groundMap.GetTile(pos + Vector3Int.up);
+                TileBase tileDown = groundMap.GetTile(pos + Vector3Int.down);
+                TileBase tileRight = groundMap.GetTile(pos + Vector3Int.right);
+                TileBase tileLeft = groundMap.GetTile(pos + Vector3Int.left);
                 
-    //             // TileBase tileUpRight = groundMap.GetTile(pos + Vector3Int.up + Vector3Int.right);
-    //             // TileBase tileUpLeft = groundMap.GetTile(pos + Vector3Int.up + Vector3Int.left);
-    //             // TileBase tileDownRight = groundMap.GetTile(pos + Vector3Int.down + Vector3Int.right);
-    //             // TileBase tileDownLeft = groundMap.GetTile(pos + Vector3Int.down + Vector3Int.left);
+                // TileBase tileUpRight = groundMap.GetTile(pos + Vector3Int.up + Vector3Int.right);
+                // TileBase tileUpLeft = groundMap.GetTile(pos + Vector3Int.up + Vector3Int.left);
+                // TileBase tileDownRight = groundMap.GetTile(pos + Vector3Int.down + Vector3Int.right);
+                // TileBase tileDownLeft = groundMap.GetTile(pos + Vector3Int.down + Vector3Int.left);
 
 
                                     
-    //             if (tile == null && (tileUp != null || tileDown != null || tileRight != null || tileLeft != null/* || tileUpRight != null || tileUpLeft != null || tileDownRight != null || tileDownLeft != null*/))
-    //             {
-    //                 wallMap.SetTile(pos, WallTile);
-    //             }
+                if (tile == null && (tileUp != null || tileDown != null || tileRight != null || tileLeft != null/* || tileUpRight != null || tileUpLeft != null || tileDownRight != null || tileDownLeft != null*/))
+                {
+                    wallMap.SetTile(pos, WallTile);
+                }
                 
 
-    //         }
-    //     }  
+            }
+        }
 
-    //     for (int lenght = 0; lenght < corridorList.Count; lenght++)
-    //     {
-    //         groundMap.SetTile(corridorList[lenght], corridor);
-    //     }
-
-    // }
+    }
 
 
-    void GenerateRoutes(List<Room> listRoom)
+    public void GenerateRoutes(List<Room> listRoom)
     {
 
         for (int i = 0; i < listRoom.Count; i++)
         {
             for (int j = 0; j < listRoom[i].connectedRooms.Count; j++)
             {
-                Vector2Int posR1 = listRoom[i].position;
-                Vector2Int posR2 = listRoom[i].connectedRooms[j].position;
+                Room R1 = listRoom[i];
+                Room R2 = listRoom[i].connectedRooms[j];
+
+                Vector2Int midPoint = (R1.position + R2.position) / 2;
+
+                //check for y axis (vertical) corridor
+                if ((R1.position.x - R1.size.x + 1 <= midPoint.x && midPoint.x <= R1.position.x + R1.size.x - 1) && (R2.position.x - R2.size.x + 1 <= midPoint.x && midPoint.x <= R2.position.x + R2.size.x - 1))
+                {
+                    int dir = Mathf.Clamp(R2.position.y - R1.position.y, -1, 1);
+                    for (int height = 0; height < Mathf.Abs(R1.position.y - R2.position.y); height++)
+                    {
+                        GenerateSquare(midPoint.x, R1.position.y + dir * height, new Vector2Int(1, 1));
+                    }
+                    R1.removeConnection(R2);
+                    continue;
+                }
+                
+                //check for x axis (horizontal) corridor
+                if ((R1.position.y - R1.size.y + 1 <= midPoint.y && midPoint.y <= R1.position.y + R1.size.y - 1) && (R2.position.y - R2.size.y + 1 <= midPoint.y && midPoint.y <= R2.position.y + R2.size.y - 1))
+                {
+                    int dir = Mathf.Clamp(R2.position.x - R1.position.x, -1, 1);
+                    for (int height = 0; height < Mathf.Abs(R1.position.x - R2.position.x); height++)
+                    {
+                        GenerateSquare(R1.position.x + dir * height, midPoint.y, new Vector2Int(1, 1));
+                    }
+                    R1.removeConnection(R2);
+                    continue;
+                }
+
+                //create L shape corridor
+                int direction1 = Mathf.Clamp(R2.position.y - R1.position.y, -1, 1);
+                for (int height = 0; height < Mathf.Abs(R1.position.y - R2.position.y); height++)
+                {
+                    GenerateSquare(R1.position.x, R1.position.y + direction1 * height, new Vector2Int(1, 1));
+                }
+                int direction2 = Mathf.Clamp(R2.position.x - R1.position.x, -1, 1);
+                for (int height = 0; height < Mathf.Abs(R1.position.x - R2.position.x); height++)
+                {
+                    GenerateSquare(R1.position.x + direction2 * height, R2.position.y, new Vector2Int(1, 1));
+                }
+                R1.removeConnection(R2);
+
+                
             }
         }
     }
 
 
-    private void GenerateSquare(int x, int y, int radius)
+    private void GenerateSquare(int x, int y, Vector2Int size)
     {
-        for (int tileX = x - radius; tileX <= x + radius; tileX++)
+        for (int tileX = x - size.x; tileX <= x + size.x; tileX++)
         {
-            for (int tileY = y - radius; tileY <= y + radius; tileY++)
+            for (int tileY = y - size.y; tileY <= y + size.y; tileY++)
             {
                 Vector3Int tilePos = new Vector3Int(tileX, tileY, 0);
                 groundMap.SetTile(tilePos, groundTile);
@@ -152,9 +188,9 @@ public class DungeonGenerator : MonoBehaviour
 
     public void RandomRooms()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 20; i++)
         {
-            int size = Random.Range(8, 15);
+            Vector2Int size = new Vector2Int(Random.Range(6, 15), Random.Range(6, 15));
 
             float minDistance;
             Vector2Int randomPos;
@@ -296,6 +332,10 @@ public class DungeonGenerator : MonoBehaviour
 
 
         }
+
+        GenerateRoutes(rooms);
+        FillWalls();
+        
     }
 }
 
@@ -305,13 +345,14 @@ public class Room
 {
 
     public int ID;
+    
     public List<Room> connectedRooms = new List<Room>();
     public List<float> connectionDistance = new List<float>();
     public Vector2Int position;
 
-    int size;
+    public Vector2Int size;
 
-    public Room(Vector2Int _position, int _size, int _ID)
+    public Room(Vector2Int _position, Vector2Int _size, int _ID)
     {
         this.position = _position;
         this.size = _size;

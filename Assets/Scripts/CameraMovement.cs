@@ -11,6 +11,16 @@ public class CameraMovement : MonoBehaviour
         if (player != null)
         {
             transform.position = Vector3.Lerp(transform.position, new Vector3(player.transform.position.x, player.transform.position.y, -10), Time.deltaTime * 3f);
+
+            if (Input.GetKeyDown("a"))
+            {
+                transform.Rotate(0, 0, 90);
+            }
+            if (Input.GetKeyDown("e"))
+            {
+                transform.Rotate(0, 0, -90);
+            }
         }
+
     }
 }
