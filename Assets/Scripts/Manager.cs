@@ -31,8 +31,8 @@ public class Manager : MonoBehaviourPunCallbacks
         }
         if (PhotonNetwork.IsMasterClient)
         {
-            randomSeed = ((int) System.DateTime.Now.Ticks);
-            SetSeedAndGenerate(randomSeed);
+            //randomSeed = ((int) System.DateTime.Now.Ticks);
+            SetSeedAndGenerate(1);
         }
     }
 

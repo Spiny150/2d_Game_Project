@@ -152,14 +152,46 @@ public class DungeonGenerator : MonoBehaviour
 
     public void RandomRooms()
     {
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 10; i++)
         {
-            Vector2Int randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
             int size = Random.Range(8, 15);
-            
-            rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
 
-            GenerateSquare(randomPos.x, randomPos.y, size);
+            float minDistance;
+            Vector2Int randomPos;
+            int iteration = 0;
+
+            bool checkForRoomPos = true;
+            
+            while(checkForRoomPos)
+            {
+                randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
+
+                if (rooms.Count == 0)
+                {
+                    minDistance = 100f;
+                }
+                else minDistance = Vector2.Distance(randomPos, rooms[0].position);
+
+                foreach(Room room in rooms)
+                {
+                    float currentDist = Vector2.Distance(randomPos, room.position);
+                    if (currentDist < minDistance)
+                    {
+                        minDistance = currentDist;
+                    }
+
+                }
+                iteration++;
+
+                if (minDistance >= 40f) 
+                {
+                    rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
+                    GenerateSquare(randomPos.x, randomPos.y, size);
+                    checkForRoomPos = false;
+                }               
+                if (iteration >= 1000) checkForRoomPos = false;
+            }
+            
         }
 
         List<Vertex2> vertices = new List<Vertex2>();
