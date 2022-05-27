@@ -28,33 +28,6 @@ public class DungeonGenerator : MonoBehaviour
     List<Room> rooms = new List<Room>();
 
 
-    // [SerializeField]
-    // private int deviationRate = 5;
-    // [SerializeField]
-    // private int roomRate = 15;
-    // [SerializeField]
-    // private int maxRouteLength;
-    // [SerializeField]
-    // private int maxRoutes = 20;
-    
-
-    // private int routeCount = 0;
-
-
-    // public void GenerateDungeon()
-    // {        
-    //     int x = 0;
-    //     int y = 0;
-    //     int routeLength = 0;
-    //     GenerateSquare(x, y, 1);
-    //     Vector2Int previousPos = new Vector2Int(x, y);
-    //     y += 3;
-    //     GenerateSquare(x, y, 1);
-    //     NewRoute(x, y, routeLength, previousPos, deviationRate);
-
-    //     FillWalls();
-    // }
-
     private void FillWalls()
     {
         BoundsInt bounds = groundMap.cellBounds;
@@ -70,15 +43,8 @@ public class DungeonGenerator : MonoBehaviour
                 TileBase tileDown = groundMap.GetTile(pos + Vector3Int.down);
                 TileBase tileRight = groundMap.GetTile(pos + Vector3Int.right);
                 TileBase tileLeft = groundMap.GetTile(pos + Vector3Int.left);
-                
-                // TileBase tileUpRight = groundMap.GetTile(pos + Vector3Int.up + Vector3Int.right);
-                // TileBase tileUpLeft = groundMap.GetTile(pos + Vector3Int.up + Vector3Int.left);
-                // TileBase tileDownRight = groundMap.GetTile(pos + Vector3Int.down + Vector3Int.right);
-                // TileBase tileDownLeft = groundMap.GetTile(pos + Vector3Int.down + Vector3Int.left);
-
-
                                     
-                if (tile == null && (tileUp != null || tileDown != null || tileRight != null || tileLeft != null/* || tileUpRight != null || tileUpLeft != null || tileDownRight != null || tileDownLeft != null*/))
+                if (tile == null && (tileUp != null || tileDown != null || tileRight != null || tileLeft != null))
                 {
                     wallMap.SetTile(pos, WallTile);
                 }
@@ -188,44 +154,45 @@ public class DungeonGenerator : MonoBehaviour
 
     public void RandomRooms()
     {
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 50; i++)
         {
             Vector2Int size = new Vector2Int(Random.Range(6, 15), Random.Range(6, 15));
 
-            float minDistance;
-            Vector2Int randomPos;
+            Vector2Int randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
+            if (rooms.Count == 0)
+            {
+                rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
+                GenerateSquare(randomPos.x, randomPos.y, size);
+                continue;
+            }
+
             int iteration = 0;
 
             bool checkForRoomPos = true;
             
             while(checkForRoomPos)
             {
+                restart:
+                iteration++;
                 randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
 
-                if (rooms.Count == 0)
-                {
-                    minDistance = 100f;
-                }
-                else minDistance = Vector2.Distance(randomPos, rooms[0].position);
+                
+                if (iteration >= 1000) break;
+
 
                 foreach(Room room in rooms)
                 {
-                    float currentDist = Vector2.Distance(randomPos, room.position);
-                    if (currentDist < minDistance)
-                    {
-                        minDistance = currentDist;
-                    }
+                    int xDist = Mathf.Abs(randomPos.x - room.position.x);
+                    int yDist = Mathf.Abs(randomPos.y - room.position.y);
+                    print(xDist - size.x - room.size.x);
+                    print(yDist - size.y - room.size.y);
+                    if (xDist - size.x - room.size.x <= 5 && yDist - size.y - room.size.y <= 5 ) goto restart;
 
                 }
-                iteration++;
 
-                if (minDistance >= 40f) 
-                {
-                    rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
-                    GenerateSquare(randomPos.x, randomPos.y, size);
-                    checkForRoomPos = false;
-                }               
-                if (iteration >= 1000) checkForRoomPos = false;
+                rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
+                GenerateSquare(randomPos.x, randomPos.y, size);
+                break;
             }
             
         }
@@ -333,6 +300,7 @@ public class DungeonGenerator : MonoBehaviour
 
         }
 
+        GenerateRoutes(rooms);
         GenerateRoutes(rooms);
         FillWalls();
         
