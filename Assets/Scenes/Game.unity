@@ -322,7 +322,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &965471152
@@ -477,7 +477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colliderHash: 2402751819
-  m_SelfShadows: 1
+  m_SelfShadows: 0
   m_ApplyToSortingLayers: -1
 --- !u!66 &977894358
 CompositeCollider2D:
@@ -600,7 +600,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundTile: {fileID: 11400000, guid: a392d84812609d147aee8384077ed5c4, type: 2}
   WallTile: {fileID: 11400000, guid: 43e21ce455f67254da55a9351e0c2a90, type: 2}
-  centerPoint: {fileID: 11400000, guid: e290185f07a791541a703a336a20d06e, type: 2}
   groundMap: {fileID: 1498401906}
   wallMap: {fileID: 977894356}
 --- !u!114 &1054705962

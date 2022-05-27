@@ -154,7 +154,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public void RandomRooms()
     {
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 20; i++)
         {
             Vector2Int size = new Vector2Int(Random.Range(6, 15), Random.Range(6, 15));
 
