@@ -184,8 +184,7 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     int xDist = Mathf.Abs(randomPos.x - room.position.x);
                     int yDist = Mathf.Abs(randomPos.y - room.position.y);
-                    print(xDist - size.x - room.size.x);
-                    print(yDist - size.y - room.size.y);
+
                     if (xDist - size.x - room.size.x <= 5 && yDist - size.y - room.size.y <= 5 ) goto restart;
 
                 }
