@@ -177,7 +177,7 @@ public class DungeonGenerator : MonoBehaviour
                 randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
 
                 
-                if (iteration >= 1000) break;
+                if (iteration >= 1000) goto noMoreRoom;
 
 
                 foreach(Room room in rooms)
@@ -196,6 +196,7 @@ public class DungeonGenerator : MonoBehaviour
             }
             
         }
+        noMoreRoom:
 
         List<Vertex2> vertices = new List<Vertex2>();
         foreach (Room room in rooms)
