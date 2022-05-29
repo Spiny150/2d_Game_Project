@@ -9,7 +9,7 @@ public class Laucher : MonoBehaviourPunCallbacks
 
     void Awake()
         {
-            PhotonNetwork.AutomaticallySyncScene = false;
+            PhotonNetwork.AutomaticallySyncScene = true;
         }
 
 
@@ -21,8 +21,8 @@ public class Laucher : MonoBehaviourPunCallbacks
             }
             else
             {
-                PhotonNetwork.ConnectUsingSettings();
                 PhotonNetwork.GameVersion = gameVersion;
+                PhotonNetwork.ConnectUsingSettings();
             }
         }
 

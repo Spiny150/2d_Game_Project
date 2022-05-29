@@ -4,24 +4,31 @@ using Photon.Pun;
 public class PlayerMovement : MonoBehaviourPun, IPunObservable
 {
 
+    PlayerCombat combat;
+
     Animator anim;
     Vector3 movement;
     Vector3 remotePos;
     Vector3 remoteVel;
-    Rigidbody2D rb;
+    public Rigidbody2D rb;
     //float lag;
 
-    const float baseSpeed = 200f;
-    const float sprintSpeed = 300f;
+    const float baseSpeed = 4f;
+    const float sprintSpeed = 6f;
     float speed = baseSpeed;
     int animatorDirection;
     bool isRunning = false;
+
+    public bool stunned = false;
+    public Vector2 slide = Vector2.zero;
+
 
 
     private void Awake() 
     {
         anim = GetComponentInChildren<Animator>();  
         rb = GetComponentInChildren<Rigidbody2D>();
+        combat = gameObject.GetComponent<PlayerCombat>();
     }
 
     private void Update() 
@@ -76,8 +83,18 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     {
         if (photonView.IsMine)
         {
-            rb.velocity = movement * speed * Time.fixedDeltaTime;
-        }        
+            if (slide.magnitude <= 10 / 3) stunned = false;
+            if (slide.magnitude <= 0.1f) slide = Vector2.zero;
+            if (stunned) movement = Vector2.zero;
+
+
+
+            rb.velocity = movement * (speed / (slide.magnitude + 1));
+            
+            slide = Vector2.Lerp(slide, Vector2.zero, Time.deltaTime);
+
+            rb.velocity += slide;
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

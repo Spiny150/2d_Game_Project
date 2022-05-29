@@ -141,15 +141,15 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos() {
+    // void OnDrawGizmos() {
 
-        foreach (Room room in rooms)
-        {
-            Handles.color = Color.red; 
-            Handles.Label(new Vector2(room.position.x, room.position.y + 20), room.ID.ToString());
-        }
+    //     foreach (Room room in rooms)
+    //     {
+    //         Handles.color = Color.red; 
+    //         Handles.Label(new Vector2(room.position.x, room.position.y + 20), room.ID.ToString());
+    //     }
         
-    }
+    // }
 
 
     public void RandomRooms()
