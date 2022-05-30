@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 7048401769391985807}
   - component: {fileID: 2687085275747377331}
   - component: {fileID: 62920195574706179}
-  - component: {fileID: 7403888618415690251}
   - component: {fileID: 468778242213787313}
   m_Layer: 0
   m_Name: Player
@@ -125,18 +124,6 @@ MonoBehaviour:
   rb: {fileID: 0}
   stunned: 0
   slide: {x: 0, y: 0}
---- !u!114 &7403888618415690251
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 62920195574706180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe98f14fcd7ac414295ba8922287b04d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &468778242213787313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,7 +252,6 @@ GameObject:
   - component: {fileID: 2105544411218927519}
   - component: {fileID: 2695512566424208414}
   - component: {fileID: 1771017127074844746}
-  - component: {fileID: 468778242169896756}
   m_Layer: 0
   m_Name: weaponHitbox
   m_TagString: Untagged
@@ -327,20 +313,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3273591488347636360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c87ef023d753c5e4886738cf8974ab18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Colliders: []
---- !u!114 &468778242169896756
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3273591488347636360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c87ef023d753c5e4886738cf8974ab18, type: 3}
+  m_Script: {fileID: 11500000, guid: c99e37d89d0110945baa74444af55b82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Colliders: []
