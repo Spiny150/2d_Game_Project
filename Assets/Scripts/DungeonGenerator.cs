@@ -248,7 +248,7 @@ public class DungeonGenerator : MonoBehaviour
     }
 
 
-    public int Loop(int value, int minValue, int maxValue)
+    private int Loop(int value, int minValue, int maxValue)
     {
         while (!(minValue <= value && value <= maxValue))
         {
