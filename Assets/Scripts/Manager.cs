@@ -31,16 +31,20 @@ public class Manager : MonoBehaviourPunCallbacks
         }
         if (PhotonNetwork.IsMasterClient)
         {
-            //randomSeed = ((int) System.DateTime.Now.Ticks);
-            SetSeedAndGenerate(1);
+            randomSeed = ((int) System.DateTime.Now.Ticks);
+            Random.InitState(randomSeed);
+            dg.RandomRooms();
         }
-    }
+    }   
 
     public override void OnPlayerEnteredRoom(Player remotePlayer) {
-        PhotonView photonView = PhotonView.Get(this);
-        photonView.RPC("SetSeedAndGenerate", remotePlayer, randomSeed);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("SetSeedAndGenerate", remotePlayer, randomSeed);
 
-        //player.transform.position = Vector2.zero;
+            //player.transform.position = Vector2.zero;
+        }
     }
 
     [PunRPC]
