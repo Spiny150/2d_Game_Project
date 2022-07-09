@@ -55,6 +55,7 @@ public class Laucher : MonoBehaviourPunCallbacks
         Debug.Log("Joined a room successfuly !");
 
         PhotonNetwork.LoadLevel("Game");
+        
         // if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
         // {
         // }

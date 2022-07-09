@@ -25,16 +25,18 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField]
     private Tilemap wallMap;
 
+    [SerializeField]
     List<Room> rooms = new List<Room>();
+    const int nbOfRoom = 20;
 
 
     private void FillWalls()
     {
         BoundsInt bounds = groundMap.cellBounds;
         
-        for (int xMap = bounds.xMin - 10; xMap <= bounds.xMax + 10; xMap++)
+        for (int xMap = bounds.xMin - 1; xMap <= bounds.xMax + 1; xMap++)
         {
-            for (int yMap = bounds.yMin - 10; yMap <= bounds.yMax + 10; yMap++)
+            for (int yMap = bounds.yMin - 1; yMap <= bounds.yMax + 1; yMap++)
             {
                 Vector3Int pos = new Vector3Int(xMap, yMap, 0);
                 TileBase tile = groundMap.GetTile(pos);
@@ -56,15 +58,15 @@ public class DungeonGenerator : MonoBehaviour
     }
 
 
-    public void GenerateRoutes(List<Room> listRoom)
+    public void GenerateRoutes()
     {
 
-        for (int i = 0; i < listRoom.Count; i++)
+        for (int roomIdx = 0; roomIdx < rooms.Count; roomIdx++)
         {
-            for (int j = 0; j < listRoom[i].connectedRooms.Count; j++)
+            for (int connectedRoomsIndex = 0; connectedRoomsIndex < rooms[roomIdx].connectedRooms.Count; connectedRoomsIndex++)
             {
-                Room R1 = listRoom[i];
-                Room R2 = listRoom[i].connectedRooms[j];
+                Room R1 = rooms[roomIdx];
+                Room R2 = rooms[roomIdx].connectedRooms[connectedRoomsIndex];
 
                 Vector2Int midPoint = (R1.position + R2.position) / 2;
 
@@ -129,9 +131,9 @@ public class DungeonGenerator : MonoBehaviour
         rooms.Clear();
         BoundsInt bounds = groundMap.cellBounds;
         
-        for (int xMap = bounds.xMin - 10; xMap <= bounds.xMax + 10; xMap++)
+        for (int xMap = bounds.xMin - 1; xMap <= bounds.xMax + 1; xMap++)
         {
-            for (int yMap = bounds.yMin - 10; yMap <= bounds.yMax + 10; yMap++)
+            for (int yMap = bounds.yMin - 1; yMap <= bounds.yMax + 1; yMap++)
             {
                 Vector3Int pos = new Vector3Int(xMap, yMap, 0);
                 
@@ -154,14 +156,14 @@ public class DungeonGenerator : MonoBehaviour
 
     public void RandomRooms()
     {
-        for (int i = 0; i < 20; i++)
+        for (int currentRoomIdx = 0; currentRoomIdx < nbOfRoom; currentRoomIdx++)
         {
             Vector2Int size = new Vector2Int(Random.Range(6, 15), Random.Range(6, 15));
 
             Vector2Int randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
             if (rooms.Count == 0)
             {
-                rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
+                rooms.Add(new Room(_position:randomPos, _size:size, _ID:currentRoomIdx+1));
                 GenerateSquare(randomPos.x, randomPos.y, size);
                 continue;
             }
@@ -189,7 +191,7 @@ public class DungeonGenerator : MonoBehaviour
 
                 }
 
-                rooms.Add(new Room(_position:randomPos, _size:size, _ID:i+1));
+                rooms.Add(new Room(_position:randomPos, _size:size, _ID:currentRoomIdx+1));
                 GenerateSquare(randomPos.x, randomPos.y, size);
                 break;
             }
@@ -300,8 +302,7 @@ public class DungeonGenerator : MonoBehaviour
 
         }
 
-        GenerateRoutes(rooms);
-        GenerateRoutes(rooms);
+        GenerateRoutes();
         FillWalls();
         
     }
