@@ -45,6 +45,7 @@ public class DungeonGenerator : MonoBehaviour
 
 #region auto-call function
 
+    /*
     void Update() 
     {
         if (delaunay != null)
@@ -66,7 +67,8 @@ public class DungeonGenerator : MonoBehaviour
             Handles.Label(new Vector2(room.position.x, room.position.y + room.size.y + 5), room.ID.ToString());
         }
     }
-
+    */
+    
 #endregion auto-call function
 
 
