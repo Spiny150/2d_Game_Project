@@ -26,8 +26,74 @@ public class DungeonGenerator : MonoBehaviour
     private Tilemap wallMap;
 
     [SerializeField]
-    List<Room> rooms = new List<Room>();
+    public List<Room> rooms = new List<Room>();
+
     const int nbOfRoom = 20;
+
+    const int minRoomSize = 5;
+    const int maxRoomSize = 10;
+
+    const int minRoomPos = -80;
+    const int maxRoomPos = 80;
+
+    const int minRoomSpread = 5;
+    const int roomPlacementTryout = 1000; //like timeout but with try
+
+    const int connectionProbability = 10;
+
+
+
+#region auto-call function
+
+    void Update() 
+    {
+        if (delaunay != null)
+        {
+            for (int roomIdx = 0; roomIdx < rooms.Count; roomIdx++)
+            {
+                for (int connectedRoomIdx = 0; connectedRoomIdx < rooms[roomIdx].connectedRooms.Count; connectedRoomIdx++)
+                {
+                    Debug.DrawLine((Vector3Int) rooms[roomIdx].position, (Vector3Int) rooms[roomIdx].connectedRooms[connectedRoomIdx].position, color:Color.red);                                
+                }
+            }
+        }
+    }
+    void OnDrawGizmos() {
+
+        foreach (Room room in  rooms)
+        {
+            Handles.color = Color.red; 
+            Handles.Label(new Vector2(room.position.x, room.position.y + room.size.y + 5), room.ID.ToString());
+        }
+    }
+
+#endregion auto-call function
+
+
+
+#region private function
+
+    private int Loop(int value, int minValue, int maxValue)
+    {
+        while (value < minValue || value > maxValue)
+        {
+            if (value > maxValue) value -= maxValue + 1;
+            if (value < minValue) value += maxValue + 1;
+        }
+        return value;
+    }
+
+    private void GenerateSquare(int x, int y, Vector2Int size)
+    {
+        for (int tileX = x - size.x; tileX <= x + size.x; tileX++)
+        {
+            for (int tileY = y - size.y; tileY <= y + size.y; tileY++)
+            {
+                Vector3Int tilePos = new Vector3Int(tileX, tileY, 0);
+                groundMap.SetTile(tilePos, groundTile);
+            }
+        }
+    }
 
 
     private void FillWalls()
@@ -48,85 +114,13 @@ public class DungeonGenerator : MonoBehaviour
                                     
                 if (tile == null && (tileUp != null || tileDown != null || tileRight != null || tileLeft != null))
                 {
-                    wallMap.SetTile(pos, WallTile);
+                    wallMap.SetTile(pos, WallTile);                    
                 }
-                
-
-            }
-        }
-
-    }
-
-
-    public void GenerateRoutes()
-    {
-
-        for (int roomIdx = 0; roomIdx < rooms.Count; roomIdx++)
-        {
-            for (int connectedRoomsIndex = 0; connectedRoomsIndex < rooms[roomIdx].connectedRooms.Count; connectedRoomsIndex++)
-            {
-                Room R1 = rooms[roomIdx];
-                Room R2 = rooms[roomIdx].connectedRooms[connectedRoomsIndex];
-
-                Vector2Int midPoint = (R1.position + R2.position) / 2;
-
-                //check for y axis (vertical) corridor
-                if ((R1.position.x - R1.size.x + 1 <= midPoint.x && midPoint.x <= R1.position.x + R1.size.x - 1) && (R2.position.x - R2.size.x + 1 <= midPoint.x && midPoint.x <= R2.position.x + R2.size.x - 1))
-                {
-                    int dir = Mathf.Clamp(R2.position.y - R1.position.y, -1, 1);
-                    for (int height = 0; height < Mathf.Abs(R1.position.y - R2.position.y); height++)
-                    {
-                        GenerateSquare(midPoint.x, R1.position.y + dir * height, new Vector2Int(1, 1));
-                    }
-                    R1.removeConnection(R2);
-                    continue;
-                }
-                
-                //check for x axis (horizontal) corridor
-                if ((R1.position.y - R1.size.y + 1 <= midPoint.y && midPoint.y <= R1.position.y + R1.size.y - 1) && (R2.position.y - R2.size.y + 1 <= midPoint.y && midPoint.y <= R2.position.y + R2.size.y - 1))
-                {
-                    int dir = Mathf.Clamp(R2.position.x - R1.position.x, -1, 1);
-                    for (int height = 0; height < Mathf.Abs(R1.position.x - R2.position.x); height++)
-                    {
-                        GenerateSquare(R1.position.x + dir * height, midPoint.y, new Vector2Int(1, 1));
-                    }
-                    R1.removeConnection(R2);
-                    continue;
-                }
-
-                //create L shape corridor
-                int direction1 = Mathf.Clamp(R2.position.y - R1.position.y, -1, 1);
-                for (int height = 0; height < Mathf.Abs(R1.position.y - R2.position.y); height++)
-                {
-                    GenerateSquare(R1.position.x, R1.position.y + direction1 * height, new Vector2Int(1, 1));
-                }
-                int direction2 = Mathf.Clamp(R2.position.x - R1.position.x, -1, 1);
-                for (int height = 0; height < Mathf.Abs(R1.position.x - R2.position.x); height++)
-                {
-                    GenerateSquare(R1.position.x + direction2 * height, R2.position.y, new Vector2Int(1, 1));
-                }
-                R1.removeConnection(R2);
-
-                
             }
         }
     }
 
-
-    private void GenerateSquare(int x, int y, Vector2Int size)
-    {
-        for (int tileX = x - size.x; tileX <= x + size.x; tileX++)
-        {
-            for (int tileY = y - size.y; tileY <= y + size.y; tileY++)
-            {
-                Vector3Int tilePos = new Vector3Int(tileX, tileY, 0);
-                groundMap.SetTile(tilePos, groundTile);
-            }
-        }
-    }
-
-
-    public void ClearMap()
+    private void ClearMap()
     {
         rooms.Clear();
         BoundsInt bounds = groundMap.cellBounds;
@@ -143,62 +137,47 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    // void OnDrawGizmos() {
-
-    //     foreach (Room room in rooms)
-    //     {
-    //         Handles.color = Color.red; 
-    //         Handles.Label(new Vector2(room.position.x, room.position.y + 20), room.ID.ToString());
-    //     }
-        
-    // }
+#endregion private function
 
 
-    public void RandomRooms()
+
+#region fat-ass function
+
+    private void RandomRooms()
     {
         for (int currentRoomIdx = 0; currentRoomIdx < nbOfRoom; currentRoomIdx++)
         {
-            Vector2Int size = new Vector2Int(Random.Range(6, 15), Random.Range(6, 15));
-
-            Vector2Int randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
-            if (rooms.Count == 0)
-            {
-                rooms.Add(new Room(_position:randomPos, _size:size, _ID:currentRoomIdx+1));
-                GenerateSquare(randomPos.x, randomPos.y, size);
-                continue;
-            }
+            Vector2Int size = new Vector2Int(Random.Range(minRoomSize, maxRoomSize), Random.Range(minRoomSize, maxRoomSize));
+            Vector2Int randomPos = new Vector2Int(Random.Range(minRoomPos, maxRoomPos), Random.Range(minRoomPos, maxRoomPos));
 
             int iteration = 0;
-
-            bool checkForRoomPos = true;
-            
-            while(checkForRoomPos)
+            while(true)
             {
                 restart:
-                iteration++;
-                randomPos = new Vector2Int(Random.Range(-80, 80), Random.Range(-80, 80));
-
-                
-                if (iteration >= 1000) goto noMoreRoom;
-
-
                 foreach(Room room in rooms)
                 {
                     int xDist = Mathf.Abs(randomPos.x - room.position.x);
                     int yDist = Mathf.Abs(randomPos.y - room.position.y);
 
-                    if (xDist - size.x - room.size.x <= 5 && yDist - size.y - room.size.y <= 5 ) goto restart;
+                    if (xDist - (size.x + room.size.x) <= minRoomSpread && yDist - (size.y + room.size.y) <= minRoomSpread)
+                    {
+                        randomPos = new Vector2Int(Random.Range(minRoomPos, maxRoomPos), Random.Range(minRoomPos, maxRoomPos));
+                        iteration++;
 
+                        if (iteration >= roomPlacementTryout) return;
+                        goto restart;
+                    }
                 }
 
                 rooms.Add(new Room(_position:randomPos, _size:size, _ID:currentRoomIdx+1));
                 GenerateSquare(randomPos.x, randomPos.y, size);
                 break;
-            }
-            
+            }            
         }
-        noMoreRoom:
+    }
 
+    private void Triangulate()
+    {
         List<Vertex2> vertices = new List<Vertex2>();
         foreach (Room room in rooms)
         {
@@ -208,25 +187,25 @@ public class DungeonGenerator : MonoBehaviour
         delaunay = new DelaunayTriangulation2();
         delaunay.Generate(vertices);
 
-        for (int i = 0; i < rooms.Count; i++)
+        for (int roomIdx = 0; roomIdx < rooms.Count; roomIdx++)
         {
-            for (int j = 0; j < delaunay.Cells.Count; j++)
+            for (int cellIdx = 0; cellIdx < delaunay.Cells.Count; cellIdx++)
             {
-                for (int k = 0; k < 2; k++)
+                for (int verticeIdx = 0; verticeIdx < 2; verticeIdx++)
                 {
-                    if (rooms[i].position == new Vector2Int((int) delaunay.Cells[j].Simplex.Vertices[k].X, (int) delaunay.Cells[j].Simplex.Vertices[k].Y))
+                    if (rooms[roomIdx].position == new Vector2Int((int) delaunay.Cells[cellIdx].Simplex.Vertices[verticeIdx].X, (int) delaunay.Cells[cellIdx].Simplex.Vertices[verticeIdx].Y))
                     {
 
-                        Vector2Int otherRoomCo1 = new Vector2Int((int) delaunay.Cells[j].Simplex.Vertices[Loop(k + 1, 0, 2)].X, (int) delaunay.Cells[j].Simplex.Vertices[Loop(k + 1, 0, 2)].Y);
-                        Vector2Int otherRoomCo2 = new Vector2Int((int) delaunay.Cells[j].Simplex.Vertices[Loop(k + 2, 0, 2)].X, (int) delaunay.Cells[j].Simplex.Vertices[Loop(k + 2, 0, 2)].Y);
+                        Vector2Int relatedRoomPos1 = new Vector2Int((int) delaunay.Cells[cellIdx].Simplex.Vertices[Loop(verticeIdx + 1, 0, 2)].X, (int) delaunay.Cells[cellIdx].Simplex.Vertices[Loop(verticeIdx + 1, 0, 2)].Y);
+                        Vector2Int relatedRoomPos2 = new Vector2Int((int) delaunay.Cells[cellIdx].Simplex.Vertices[Loop(verticeIdx + 2, 0, 2)].X, (int) delaunay.Cells[cellIdx].Simplex.Vertices[Loop(verticeIdx + 2, 0, 2)].Y);
 
-                        for (int l = 0; l < rooms.Count; l++)
+                        for (int extraRoomIdx = 0; extraRoomIdx < rooms.Count; extraRoomIdx++)
                         {
-                            if (rooms[l].position == otherRoomCo1 || rooms[l].position == otherRoomCo2)
+                            if (rooms[extraRoomIdx].position == relatedRoomPos1 || rooms[extraRoomIdx].position == relatedRoomPos2)
                             {
-                                if (!rooms[i].connectedRooms.Contains(rooms[l])) 
+                                if (!rooms[roomIdx].connectedRooms.Contains(rooms[extraRoomIdx])) 
                                 {
-                                    rooms[i].createConnection(rooms[l]);
+                                    rooms[roomIdx].createConnection(rooms[extraRoomIdx]);
                                 }
                             }
                         }
@@ -236,31 +215,7 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    private void Update() {
-        if (delaunay != null)
-        {
-            for (int i = 0; i < rooms.Count; i++)
-            {
-                for (int j = 0; j < rooms[i].connectedRooms.Count; j++)
-                {
-                    Debug.DrawLine((Vector3Int) rooms[i].position, (Vector3Int) rooms[i].connectedRooms[j].position, color:Color.red);                                
-                }
-            }
-        }
-    }
-
-
-    private int Loop(int value, int minValue, int maxValue)
-    {
-        while (!(minValue <= value && value <= maxValue))
-        {
-            if (value > maxValue) value -= maxValue + 1;
-            if (value < minValue) value += maxValue + 1;
-        }
-        return value;
-    }
-
-    public void GenerateMinimumSpanningTree()
+    private void GenerateMinimumSpanningTree()
     {
         bool foundTree = false;
 
@@ -269,18 +224,18 @@ public class DungeonGenerator : MonoBehaviour
         {
 
             int? maxRoomIndex = null;
-            int? connectedRoomsIndex = null;
+            int? connectedRoomIdx = null;
             float maxDistance = 0;
 
-            for (int i = 0; i < rooms.Count; i++)
+            for (int roomIdx = 0; roomIdx < rooms.Count; roomIdx++)
             {
-                for (int j = 0; j < rooms[i].connectedRooms.Count; j++)
+                for (int relatedRoomIdx = 0; relatedRoomIdx < rooms[roomIdx].connectedRooms.Count; relatedRoomIdx++)
                 {
-                    if (rooms[i].canAccess(rooms[i].connectedRooms[j]) && rooms[i].connectionDistance[j] > maxDistance)
+                    if (rooms[roomIdx].canAccess(rooms[roomIdx].connectedRooms[relatedRoomIdx]) && rooms[roomIdx].connectionDistance[relatedRoomIdx] >= maxDistance)
                     {
-                        maxDistance = rooms[i].connectionDistance[j];
-                        maxRoomIndex = i;
-                        connectedRoomsIndex = j;
+                        maxDistance = rooms[roomIdx].connectionDistance[relatedRoomIdx];
+                        maxRoomIndex = roomIdx;
+                        connectedRoomIdx = relatedRoomIdx;
                     }
                 }                
             }
@@ -289,24 +244,89 @@ public class DungeonGenerator : MonoBehaviour
             {
                 foreach (Connection connection in deletedRooms)
                 {
-                    if (Random.Range(0, 100) < 10)
+                    if (Random.Range(0, 100) < connectionProbability)
                     connection.room1.createConnection(connection.room2);
                 }
                 foundTree = true;
                 break;
             }
 
-            //deletedRooms.Add(new Connection(_room1:rooms[(int) maxRoomIndex], _room2:rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomsIndex]));
-            rooms[(int) maxRoomIndex].removeConnection(rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomsIndex]);
+            deletedRooms.Add(new Connection(_room1:rooms[(int) maxRoomIndex], _room2:rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomIdx]));
+            rooms[(int) maxRoomIndex].removeConnection(rooms[(int) maxRoomIndex].connectedRooms[(int) connectedRoomIdx]);
 
+        } 
+    }
 
+    private void GenerateRoutes()
+    {
+
+        for (int roomIdx = 0; roomIdx < rooms.Count; roomIdx++)
+        {
+            for (int connectedRoomIdx = 0; connectedRoomIdx < rooms[roomIdx].connectedRooms.Count; connectedRoomIdx++)
+            {
+                Room R1 = rooms[roomIdx];
+                Room R2 = rooms[roomIdx].connectedRooms[connectedRoomIdx];
+
+                Vector2Int midPoint = (R1.position + R2.position) / 2;
+
+                //check for y axis (vertical) corridor
+                if ((R1.position.x - R1.size.x + 1 <= midPoint.x && midPoint.x <= R1.position.x + R1.size.x - 1) && (R2.position.x - R2.size.x + 1 <= midPoint.x && midPoint.x <= R2.position.x + R2.size.x - 1))
+                {
+                    int dir = Mathf.Clamp(R2.position.y - R1.position.y, -1, 1);
+                    for (int height = 0; height < Mathf.Abs(R1.position.y - R2.position.y); height++)
+                    {
+                        GenerateSquare(midPoint.x, R1.position.y + dir * height, new Vector2Int(1, 1));
+                    }
+                    continue;
+                }
+                
+                //check for x axis (horizontal) corridor
+                if ((R1.position.y - R1.size.y + 1 <= midPoint.y && midPoint.y <= R1.position.y + R1.size.y - 1) && (R2.position.y - R2.size.y + 1 <= midPoint.y && midPoint.y <= R2.position.y + R2.size.y - 1))
+                {
+                    int dir = Mathf.Clamp(R2.position.x - R1.position.x, -1, 1);
+                    for (int height = 0; height < Mathf.Abs(R1.position.x - R2.position.x); height++)
+                    {
+                        GenerateSquare(R1.position.x + dir * height, midPoint.y, new Vector2Int(1, 1));
+                    }
+                    continue;
+                }
+
+                //create L shape corridor
+                int direction1 = Mathf.Clamp(R2.position.y - R1.position.y, -1, 1);
+                for (int height = 0; height < Mathf.Abs(R1.position.y - R2.position.y); height++)
+                {
+                    GenerateSquare(R1.position.x, R1.position.y + direction1 * height, new Vector2Int(1, 1));
+                }
+                int direction2 = Mathf.Clamp(R2.position.x - R1.position.x, -1, 1);
+                for (int height = 0; height < Mathf.Abs(R1.position.x - R2.position.x); height++)
+                {
+                    GenerateSquare(R1.position.x + direction2 * height, R2.position.y, new Vector2Int(1, 1));
+                }                
+            }
+
+            while (rooms[roomIdx].connectedRooms.Count > 0)
+            {
+                rooms[roomIdx].removeConnection(rooms[roomIdx].connectedRooms[0]);
+            }
         }
+    }
 
+#endregion fat-ass function
+
+    public void NewDungeon()
+    {
+        rooms.Clear();
+        ClearMap();
+
+        RandomRooms();
+        Triangulate();
+        GenerateMinimumSpanningTree();
         GenerateRoutes();
         FillWalls();
-        
     }
+
 }
+
 
 
 

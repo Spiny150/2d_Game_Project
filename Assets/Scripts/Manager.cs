@@ -33,7 +33,7 @@ public class Manager : MonoBehaviourPunCallbacks
         {
             randomSeed = ((int) System.DateTime.Now.Ticks);
             Random.InitState(randomSeed);
-            dg.RandomRooms();
+            dg.NewDungeon();
         }
     }   
 
@@ -47,28 +47,19 @@ public class Manager : MonoBehaviourPunCallbacks
         }
     }
 
-    [PunRPC]
+    [PunRPC]    
     void SetSeedAndGenerate(int seed)
     {
         Random.InitState(seed);
-        dg.RandomRooms();
+        dg.NewDungeon();
     }
 
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Delete))
-        {
-            dg.ClearMap();
-        }
 
-        if (Input.GetKeyDown(KeyCode.End))
-        {
-            //dg.GenerateDungeon();
-            dg.RandomRooms();
-        }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            dg.GenerateMinimumSpanningTree();
+            dg.NewDungeon();
         }
 
 
